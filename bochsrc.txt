@@ -1,17 +1,17 @@
-# Quanto de RAM o PC emulado terá
+# Defines how much ram we're going to have
 megs: 32
 
-# Onde está a imagem ISO (ajuste o nome se o seu for diferente de os.iso)
+# Defines where the ISO is
 ata0-master: type=cdrom, path="os.iso", status=inserted
 
-# Ordem de boot: tentar CD primeiro
+# Boot order
 boot: cdrom
 
-# Logs para debugar se algo der errado
+# Logs
 log: bochsout.txt
 
-# Configuração essencial para o Mac (Usa SDL2 para a janela gráfica)
+# Configure which graphics library to use in the emulator
 display_library: sdl2
 
-# Desativar o mouse para não prender o cursor no início
+# Disables mouse
 mouse: enabled=0
