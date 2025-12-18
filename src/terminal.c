@@ -11,16 +11,31 @@ void terminal_print_char(char letter) {
     return;
   }
 
-  *terminal_buffer = ((uint16_t) 0x0F << 8) | letter;
+  char to_print = letter;
+  
+  if ((uint16_t) letter < 32 || (uint16_t) letter > 126) {
+    to_print = '?';
+  }
+
+  *terminal_buffer = ((uint16_t) 0x0F << 8) | to_print;
   terminal_buffer += 1;
 }
 
-void terminal_print_line(char* string) {
+void terminal_print_string(char* string) {
   int length = strlen(string);
 
   for (int i = 0; i < length; i++) {
     terminal_print_char(string[i]);
   }
+}
+
+void terminal_print_line(char* string) {
+  terminal_print_string(string);
+  terminal_print_char('\n');
+}
+
+void terminal_read_input() {
+  terminal_print_string("USER > ");
 }
 
 void terminal_clear() {
