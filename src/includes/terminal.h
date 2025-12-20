@@ -1,18 +1,30 @@
 #ifndef TERMINAL_H
 #define TERMINAL_H
 
-#include <stdint.h>
+#include "stdio.h"
 #include "strings.h"
+#include "assembly.h"
+#include <stdint.h>
 
-#define VGA_MEMORY 0xB8000
-#define VGA_MAX_COLS 80
-#define VGA_MAX_ROWS 25
+// Structs definitions
 
-void terminal_print_char(char letter);
-void terminal_print_string(char* string);
-void terminal_print_line(char* string);
+struct Position {
+  uint16_t x;
+  uint16_t y;
+};
+
+// Functions
+
+// Printing related
+
+void terminal_print_string(char* string, uint16_t foreground_color);
+void terminal_print_line(char* string, uint16_t foreground_color);
+
+// Reading related
 
 void terminal_read_input();
+
+// Others
 
 void terminal_clear();
 

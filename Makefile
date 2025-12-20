@@ -19,16 +19,17 @@ link:
 
 compile:
 	i686-elf-gcc -m32 -O0 -ffreestanding -nostdlib \
-	-Wall -Wextra -Werror -I ./src/includes/ -c $(C_FILES)
+		-Wall -Wextra -Werror -I ./src/includes/ -c $(C_FILES)
 	mv *.o build/
 
 assembly:
 	nasm -f elf32 ./src/boot/loader.s -o ./build/loader.o
 
-setup:
+setup: clean
 	mkdir build
 	mkdir build/bin
 
 clean:
 	rm os.iso
 	rm -rf build/
+	rm *.o

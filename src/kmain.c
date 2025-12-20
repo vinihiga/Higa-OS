@@ -2,7 +2,7 @@
 
 void kernel_welcome() {
   terminal_clear();
-  terminal_print_line("Welcome to Higa OS!");
+  terminal_print_line("Welcome to Higa OS!", TEXT_WHITE);
 }
 
 void kernel_main() {
