@@ -4,16 +4,8 @@
 #include "stdio.h"
 #include "strings.h"
 #include "assembly.h"
+#include "idt.h"
 #include <stdint.h>
-
-// Structs definitions
-
-struct Position {
-  uint16_t x;
-  uint16_t y;
-};
-
-// Functions
 
 // Printing related
 

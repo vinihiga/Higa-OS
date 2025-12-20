@@ -1,5 +1,10 @@
 #include "includes/terminal.h"
 
+struct Position {
+  uint16_t x;
+  uint16_t y;
+} __attribute__((packed));
+
 struct Position cursor_pos = { 0, 0 };
 
 void terminal_move_cursor(uint16_t x, uint16_t y);
@@ -23,6 +28,17 @@ void terminal_print_line(char* string, uint16_t foreground_color) {
 
 void terminal_read_input() {
   terminal_print_string("USER > ", TEXT_GREEN);
+
+  // TODO: We need to accept an entire phrase (a.k.a string)
+  last_scancode = 0;
+  while(last_scancode == 0);
+
+  putchar(last_scancode, TEXT_WHITE);
+  uintptr_t diff = (uintptr_t)output_buffer - (uintptr_t)VGA_MEMORY_ADDR;
+  int cells = diff / sizeof(uint16_t); // Each cell must have 2 bytes. One for the ASCII character and another for color.
+  int actual_line = cells / TERMINAL_MAX_COLS;
+  int actual_cell = cells - (actual_line * TERMINAL_MAX_COLS) - 1;
+  terminal_move_cursor(actual_cell + 1, actual_line);
 }
 
 void terminal_clear() {
