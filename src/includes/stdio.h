@@ -9,12 +9,15 @@
 #define TERMINAL_MAX_ROWS    25
 
 #include <stdint.h>
+#include "idt.h"
 
- // We must allow any type of output buffers (ex. vga, text files, serial conns.)
+// We must allow any type of output buffers (ex. vga, text files, serial conns.)
+// TODO: We must isolate this buffer. Any another code implementation must not access this.
 extern uint16_t* output_buffer;
 
 void putchar(char letter, uint16_t foreground_color);
 void printf(char* string, uint16_t foreground_color);
+void scanf(char* result, unsigned int buffer_size);
 
 enum Color {
   TEXT_BLACK = 0x00,

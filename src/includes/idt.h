@@ -6,7 +6,7 @@
 #include "assembly.h"
 #include <stdint.h>
 
-extern unsigned char last_scancode; // This is defined in the loader.s (assembly file)
+extern volatile unsigned char last_scancode; // This is defined in the loader.s (assembly file)
 
 void idt_setup();
 

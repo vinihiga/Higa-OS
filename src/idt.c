@@ -27,16 +27,16 @@ void idt_setup() {
     idt_set_gate(i, (uint32_t)irq_dummy, 0x08, 0x8E);
   }
 
-  idt_table.limit = (sizeof(struct idt_entry) * IDT_MAX_SIZE) - 1;
-  idt_table.base = (uint32_t) &idt_entries;
-
-  // lidt => Load Interrupt Descriptor Table
-  asm volatile ("lidt %0" :: "m"(idt_table));
-
   // Configuring ports
   idt_set_gate(33, (uint32_t) irq_handle_keyboard, 0x08, 0x8E);
 
+  idt_table.limit = (sizeof(struct idt_entry) * IDT_MAX_SIZE) - 1;
+  idt_table.base = (uint32_t) &idt_entries;
+
   pic_remap(); 
+
+  // lidt => Load Interrupt Descriptor Table
+  asm volatile ("lidt %0" :: "m"(idt_table));
   asm volatile ("sti"); // TODO: O que é isso aqui? A IA pediu para implementar isso aqui
 }
 

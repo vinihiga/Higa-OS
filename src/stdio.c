@@ -1,5 +1,12 @@
 #include "includes/stdio.h"
 
+unsigned char kb_map[128] = {
+  0,  27, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', '\b',
+  '\t', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\n',
+  0, 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', '\'', '`', 0,
+  '\\', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/', 0, '*', 0, ' '
+};
+
 uint16_t* output_buffer = (uint16_t*) VGA_MEMORY_ADDR;
 
 void putchar(char letter, uint16_t foreground_color) {
@@ -28,4 +35,26 @@ void printf(char* string, uint16_t foreground_color) {
     putchar(*ptr, foreground_color);
     ptr++;
   }
+}
+
+void scanf(char* result, unsigned int buffer_size) {
+  unsigned int i = 0;
+  while (i < buffer_size - 1) {
+    while (last_scancode == 0); 
+
+    unsigned char code = last_scancode;
+    last_scancode = 0;
+
+    // TODO: What is it? (bit 7 set). AI said to add that.
+    if (code & 0x80) continue; 
+
+    char c = kb_map[code];
+
+    if (c == '\n') break;
+    
+    result[i++] = c;
+    putchar(c, TEXT_WHITE);
+  }
+
+  result[i] = '\0';
 }

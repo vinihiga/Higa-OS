@@ -28,17 +28,9 @@ void terminal_print_line(char* string, uint16_t foreground_color) {
 
 void terminal_read_input() {
   terminal_print_string("USER > ", TEXT_GREEN);
-
-  // TODO: We need to accept an entire phrase (a.k.a string)
-  last_scancode = 0;
-  while(last_scancode == 0);
-
-  putchar(last_scancode, TEXT_WHITE);
-  uintptr_t diff = (uintptr_t)output_buffer - (uintptr_t)VGA_MEMORY_ADDR;
-  int cells = diff / sizeof(uint16_t); // Each cell must have 2 bytes. One for the ASCII character and another for color.
-  int actual_line = cells / TERMINAL_MAX_COLS;
-  int actual_cell = cells - (actual_line * TERMINAL_MAX_COLS) - 1;
-  terminal_move_cursor(actual_cell + 1, actual_line);
+  char input_buffer[256];
+  scanf(input_buffer, 256);
+  terminal_print_line(input_buffer, TEXT_WHITE);
 }
 
 void terminal_clear() {
@@ -66,11 +58,9 @@ void terminal_move_cursor(uint16_t x, uint16_t y) {
 
   uint16_t cells = cursor_pos.y * TERMINAL_MAX_COLS + cursor_pos.x;
 
-  // Send the high byte of the position
-  outb(0x3D4, 0x0E);         // Select high byte position register (index 0x0E)
-  outb(0x3D5, (cells >> 8) & 0xFF); // Send the high byte
+  outb(0x3D4, 0x0E);
+  outb(0x3D5, (cells >> 8) & 0xFF);
 
-  // Send the low byte of the position
-  outb(0x3D4, 0x0F);         // Select low byte position register (index 0x0F)
-  outb(0x3D5, cells & 0xFF);      // Send the low byte
+  outb(0x3D4, 0x0F);
+  outb(0x3D5, cells & 0xFF);
 }
