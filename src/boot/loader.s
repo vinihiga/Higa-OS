@@ -40,7 +40,7 @@ loader:                         ; the loader label (defined as entry point in li
 irq_dummy:
     push eax
     mov al, 0x20
-    out 0x20, al    ; Avisa o PIC que "tratamos" a interrupção
+    out 0x20, al                ; Just signs to PIC we have finished the event
     pop eax
     iretd
 
