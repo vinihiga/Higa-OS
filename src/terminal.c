@@ -30,7 +30,7 @@ void terminal_read_input() {
   terminal_print_string("USER > ", TEXT_GREEN);
   char input_buffer[256];
   scanf(input_buffer, 256);
-  terminal_print_line(input_buffer, TEXT_WHITE);
+  putchar('\n', TEXT_WHITE);
 }
 
 void terminal_clear() {
