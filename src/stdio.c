@@ -1,7 +1,7 @@
 #include "includes/stdio.h"
 
 unsigned char kb_map[128] = {
-  0,  27, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', '\b',
+  0, 27, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', '\b',
   '\t', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\n',
   0, 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', '\'', '`', 0,
   '\\', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/', 0, '*', 0, ' '
@@ -19,8 +19,9 @@ void putchar(char letter, uint16_t foreground_color) {
   }
 
   char to_print = letter;
+  bool is_ascii_code = ((uint16_t) letter >= 32 && (uint16_t) letter <= 255);
   
-  if ((uint16_t) letter < 32 || (uint16_t) letter > 255) {
+  if ((uint16_t) to_print != 0 && !is_ascii_code) {
     to_print = '?';
   }
 
@@ -49,11 +50,25 @@ void scanf(char* result, unsigned int buffer_size) {
     if (code & 0x80) continue; 
 
     char c = kb_map[code];
+    bool is_delete = (c == '\b');
+    bool is_break_line = (c == '\n');
 
-    if (c == '\n') break;
-    
-    result[i++] = c;
-    putchar(c, TEXT_WHITE);
+    if (is_delete) {
+      if (i == 0) {
+        continue;
+      }
+
+      i--;
+      output_buffer--;
+      putchar('\0', TEXT_WHITE);
+      output_buffer--;
+    } else if (is_break_line) {
+      break;
+    } else {
+      result[i] = c;
+      i++;
+      putchar(c, TEXT_WHITE);
+    }
   }
 
   result[i] = '\0';
