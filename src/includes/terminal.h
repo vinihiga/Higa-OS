@@ -1,6 +1,8 @@
 #ifndef TERMINAL_H
 #define TERMINAL_H
 
+#define TERMINAL_INPUT_BUFFER_SIZE 256
+
 #include "stdio.h"
 #include "strings.h"
 #include "assembly.h"
@@ -14,7 +16,7 @@ void terminal_print_line(char* string, uint16_t foreground_color);
 
 // Reading related
 
-void terminal_read_input();
+void terminal_read_input(); // TODO: it must return a char*
 
 // Others
 

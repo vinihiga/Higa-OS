@@ -28,9 +28,27 @@ void terminal_print_line(char* string, uint16_t foreground_color) {
 
 void terminal_read_input() {
   terminal_print_string("USER > ", TEXT_GREEN);
-  char input_buffer[256];
-  scanf(input_buffer, 256);
-  putchar('\n', TEXT_WHITE);
+  char input_buffer[TERMINAL_INPUT_BUFFER_SIZE];
+  int i = 0;
+
+  while (i < TERMINAL_INPUT_BUFFER_SIZE) {
+    scanf(&input_buffer[i], 1);
+
+    if (input_buffer[i] == '\n') {
+      break;
+    } else if (input_buffer[i] == '\0') {
+      i--;
+      if (i < 0) i = 0;
+
+      output_buffer--;
+      putchar('\0', TEXT_WHITE);
+      output_buffer--;
+    } else {
+      putchar(input_buffer[i], TEXT_WHITE);
+    }
+
+    i++;
+  }
 }
 
 void terminal_clear() {

@@ -3,3 +3,6 @@ iso/boot/kernel.elf
 iso/boot/grub/stage2_eltorito
 bochsout.txt
 os.iso
+
+test*
+*tmp*

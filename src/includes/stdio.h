@@ -17,7 +17,7 @@ extern uint16_t* output_buffer;
 
 void putchar(char letter, uint16_t foreground_color);
 void printf(char* string, uint16_t foreground_color);
-void scanf(char* result, unsigned int buffer_size);
+void scanf(char* input_buffer, int buffer_size);
 
 enum Color {
   TEXT_BLACK = 0x00,

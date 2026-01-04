@@ -15,6 +15,8 @@ KERNEL_STACK_SIZE equ 16384     ; size of stack in bytes, in this case 16KB
 section .data
     global last_scancode
     last_scancode db 0
+    global is_special_key_pressed
+    is_special_key_pressed db 0
 
 section .bss
 align 4
@@ -46,6 +48,20 @@ irq_dummy:
 
 irq_handle_keyboard:
     push eax
+    in al, 0x60
+
+    cmp al, 0xE0
+    je .keyboard_special_key_pressed
+
+    mov [is_special_key_pressed], 0
+    mov [last_scancode], al
+    mov al, 0x20
+    out 0x20, al
+    pop eax
+    iretd
+
+.keyboard_special_key_pressed:
+    mov [is_special_key_pressed], 1
     in al, 0x60
     mov [last_scancode], al
     mov al, 0x20
