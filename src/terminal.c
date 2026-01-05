@@ -1,84 +1,93 @@
 #include "includes/terminal.h"
 
-struct Position {
-  uint16_t x;
-  uint16_t y;
-} __attribute__((packed));
-
-struct Position cursor_pos = { 0, 0 };
-
-void terminal_move_cursor(uint16_t x, uint16_t y);
+void move_cursor(uint16_t x, uint16_t y);
+int get_cursor_row();
+int get_cursor_col();
 
 void terminal_print_string(char* string, uint16_t foreground_color) {
   printf(string, foreground_color);
-
-  uintptr_t diff = (uintptr_t)output_buffer - (uintptr_t)VGA_MEMORY_ADDR;
-  int cells = diff / sizeof(uint16_t); // Each cell must have 2 bytes. One for the ASCII character and another for color.
-  int actual_line = cells / TERMINAL_MAX_COLS;
-  int actual_cell = cells - (actual_line * TERMINAL_MAX_COLS) - 1;
-
-  terminal_move_cursor(actual_cell + 1, actual_line);
+  move_cursor(get_cursor_col() + 1, get_cursor_row());
 }
 
 void terminal_print_line(char* string, uint16_t foreground_color) {
   terminal_print_string(string, foreground_color);
   putchar('\n', TEXT_WHITE);
-  terminal_move_cursor(0, cursor_pos.y + 1);
+  move_cursor(0, get_cursor_row() + 1);
 }
 
 void terminal_read_input() {
   terminal_print_string("USER > ", TEXT_GREEN);
+
   char input_buffer[TERMINAL_INPUT_BUFFER_SIZE];
   int i = 0;
 
-  while (i < TERMINAL_INPUT_BUFFER_SIZE) {
-    scanf(&input_buffer[i], 1);
+  while (i < TERMINAL_INPUT_BUFFER_SIZE - 1) {
+    char new_char = getchar();
+    bool is_break_line = (new_char == '\n');
+    bool is_backspace = (new_char == '\b');
 
-    if (input_buffer[i] == '\n') {
+    if (is_break_line) {
       break;
-    } else if (input_buffer[i] == '\0') {
+    } else if (is_backspace && i > 0) {
       i--;
-      if (i < 0) i = 0;
-
-      output_buffer--;
-      putchar('\0', TEXT_WHITE);
-      output_buffer--;
-    } else {
-      putchar(input_buffer[i], TEXT_WHITE);
+      stdout--;
+      putchar(' ', TEXT_WHITE);
+      stdout--;
+    } else if (!is_backspace) {
+      putchar(new_char, TEXT_WHITE);
+      input_buffer[i] = new_char;
+      i++;
     }
 
-    i++;
+    move_cursor(get_cursor_col(), get_cursor_row());
   }
+
+  input_buffer[i] = '\0';
 }
 
 void terminal_clear() {
-  for (int j = 0; j < TERMINAL_MAX_ROWS; j++) {
-    for (int i = 0; i < TERMINAL_MAX_COLS; i++) {
-        output_buffer[TERMINAL_MAX_COLS * j + i] = (TEXT_WHITE << 8); 
+  for (int j = 0; j < STDIO_TERMINAL_MAX_ROWS; j++) {
+    for (int i = 0; i < STDIO_TERMINAL_MAX_COLS; i++) {
+        stdout[STDIO_TERMINAL_MAX_COLS * j + i] = (TEXT_WHITE << 8); 
     }
   }
 
-  output_buffer = (uint16_t*) VGA_MEMORY_ADDR;
-  terminal_move_cursor(0, 0);
+  stdout = (uint16_t*) STDIO_VGA_MEMORY_ADDR;
+  move_cursor(0, 0);
 }
 
-void terminal_move_cursor(uint16_t x, uint16_t y) {
-  cursor_pos.x = x;
-  cursor_pos.y = y;
+void move_cursor(uint16_t x, uint16_t y) {
+  int new_x = x;
+  int new_y = y;
 
-  if (x >= TERMINAL_MAX_COLS) {
-    cursor_pos.x = 0;
+  if (new_x >= STDIO_TERMINAL_MAX_COLS) {
+    new_x = 0;
   }
 
-  if (y >= TERMINAL_MAX_ROWS) {
-    cursor_pos.y = 0;
+  if (new_y >= STDIO_TERMINAL_MAX_ROWS) {
+    new_y = 0;
   }
 
-  uint16_t cells = cursor_pos.y * TERMINAL_MAX_COLS + cursor_pos.x;
+  uint16_t cells = new_y * STDIO_TERMINAL_MAX_COLS + new_x;
 
   outb(0x3D4, 0x0E);
   outb(0x3D5, (cells >> 8) & 0xFF);
 
   outb(0x3D4, 0x0F);
   outb(0x3D5, cells & 0xFF);
+}
+
+int get_cursor_row() {
+  uintptr_t diff = (uintptr_t)stdout - (uintptr_t)STDIO_VGA_MEMORY_ADDR;
+  int cells = diff / sizeof(uint16_t); // Each cell must have 2 bytes. One for the ASCII character and another for color.
+  int actual_line = cells / STDIO_TERMINAL_MAX_COLS;
+  return actual_line;
+}
+
+int get_cursor_col() {
+  uintptr_t diff = (uintptr_t)stdout - (uintptr_t)STDIO_VGA_MEMORY_ADDR;
+  int cells = diff / sizeof(uint16_t); // Each cell must have 2 bytes. One for the ASCII character and another for color.
+  int actual_line = cells / STDIO_TERMINAL_MAX_COLS;
+  int actual_cell = cells - (actual_line * STDIO_TERMINAL_MAX_COLS) - 1;
+  return actual_cell;
 }

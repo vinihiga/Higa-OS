@@ -1,27 +1,27 @@
-#ifndef VIDEO_H
-#define VIDEO_H
+#ifndef STDIO_H
+#define STDIO_H
 
-#define VGA_MEMORY_ADDR 0xB8000
+#define STDIO_VGA_MEMORY_ADDR 0xB8000
 
 #define NULL 0
 
-#define TERMINAL_MAX_COLS    80
-#define TERMINAL_MAX_ROWS    25
+#define STDIO_TERMINAL_MAX_COLS    80
+#define STDIO_TERMINAL_MAX_ROWS    25
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "idt.h"
 
-// We must allow any type of output buffers (ex. vga, text files, serial conns.)
-// TODO: We must isolate this buffer. Any another code implementation must not access this.
-extern uint16_t* output_buffer;
+extern uint16_t* stdout; // This is basically the VGA memory region address pointer. This is used for the terminal.
 
-void putchar(char letter, uint16_t foreground_color);
-void printf(char* string, uint16_t foreground_color);
-void scanf(char* input_buffer, int buffer_size);
+void putchar(char letter, uint16_t foreground_color); // TODO: Remove foreground_color param
+void printf(char* string, uint16_t foreground_color); // TODO: Remove foreground_color param, also must accept data type (ex. "%d", "%i", "%.2f")
+char getchar();
+void scanf(char* input_buffer, int buffer_size); // TODO: Must allow to parse data to any data type (ex. "%d", "%i", "%s")
 
 enum Color {
   TEXT_BLACK = 0x00,
-  TEXT_WHITE = 0x0F,
+  TEXT_WHITE = 0x0F, // This is the default one
   TEXT_GREEN = 0x02
 };
 

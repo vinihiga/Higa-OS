@@ -13,10 +13,10 @@ KERNEL_STACK_SIZE equ 16384     ; size of stack in bytes, in this case 16KB
 
 ; The loader definition starts here
 section .data
-    global last_scancode
-    last_scancode db 0
-    global is_special_key_pressed
-    is_special_key_pressed db 0
+    global idt_last_scancode
+    idt_last_scancode db 0
+    global idt_is_special_key_pressed
+    idt_is_special_key_pressed db 0
 
 section .bss
 align 4
@@ -50,20 +50,22 @@ irq_handle_keyboard:
     push eax
     in al, 0x60
 
+    ; Checks if we are going to have 2 bytes of data for extended keycode,
+    ; otherwise we won't jump and we are going to show a regular input with just 1 byte of info.
     cmp al, 0xE0
-    je .keyboard_special_key_pressed
+    je .special_key_pressed
 
-    mov [is_special_key_pressed], 0
-    mov [last_scancode], al
+    mov [idt_is_special_key_pressed], 0
+    mov [idt_last_scancode], al
     mov al, 0x20
     out 0x20, al
     pop eax
     iretd
 
-.keyboard_special_key_pressed:
-    mov [is_special_key_pressed], 1
+.special_key_pressed:
+    mov [idt_is_special_key_pressed], 1
     in al, 0x60
-    mov [last_scancode], al
+    mov [idt_last_scancode], al
     mov al, 0x20
     out 0x20, al
     pop eax

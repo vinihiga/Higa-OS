@@ -93,14 +93,14 @@ unsigned char kb_map[256] = {
   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 };
 
-uint16_t* output_buffer = (uint16_t*) VGA_MEMORY_ADDR;
+uint16_t* stdout = (uint16_t*) STDIO_VGA_MEMORY_ADDR;
 
 void putchar(char letter, uint16_t foreground_color) {
   if (letter == '\n') {
-    uintptr_t diff = (uintptr_t)output_buffer - (uintptr_t)VGA_MEMORY_ADDR;
+    uintptr_t diff = (uintptr_t)stdout - (uintptr_t)STDIO_VGA_MEMORY_ADDR;
     int cells = diff / sizeof(uint16_t); // Each cell must have 2 bytes. One for the ASCII character and another for color.
-    int actual_line = cells / TERMINAL_MAX_COLS;
-    output_buffer = (uint16_t*)VGA_MEMORY_ADDR + ((actual_line + 1) * TERMINAL_MAX_COLS);
+    int actual_line = cells / STDIO_TERMINAL_MAX_COLS;
+    stdout = (uint16_t*)STDIO_VGA_MEMORY_ADDR + ((actual_line + 1) * STDIO_TERMINAL_MAX_COLS);
     return;
   }
 
@@ -111,8 +111,8 @@ void putchar(char letter, uint16_t foreground_color) {
     to_print = '?';
   }
 
-  *output_buffer = ((uint16_t) foreground_color << 8) | to_print;
-  output_buffer += 1;
+  *stdout = ((uint16_t) foreground_color << 8) | to_print;
+  stdout += 1;
 }
 
 void printf(char* string, uint16_t foreground_color) {
@@ -124,40 +124,63 @@ void printf(char* string, uint16_t foreground_color) {
   }
 }
 
-void scanf(char* input_buffer, int buffer_size) {
-  if (buffer_size <= 0) {
-    return;
-  }
+char getchar() {
+  unsigned char scancode;
 
-  int i = 0;
-  last_scancode = 0;
-  is_special_key_pressed = 0;
+  while (true) {
+    idt_last_scancode = 0;
+    while (idt_last_scancode == 0);
 
-  while (i < buffer_size) {
-    while (last_scancode == 0); 
+    scancode = idt_last_scancode;
+    idt_last_scancode = 0;
+    bool is_key_released = scancode & 0x80;
 
-    unsigned char current_scancode = last_scancode;
-    last_scancode = 0;
-    bool is_key_released = current_scancode & 0x80;
-
-    if (is_key_released) continue; 
-
-    char c = kb_map[current_scancode];
-    bool is_backspace = (c == 0);
-    bool is_delete = (c == 0 && is_special_key_pressed);
-
-    if (is_backspace || is_delete) { // TODO: Fix this bug. We aren't reading delete button
-      i--;
-      if (i < 0) i = 0;
-      input_buffer[i] = '\0';
-    } else {
-      input_buffer[i] = c;
-      i++;
+    if (!is_key_released) {
+      break;
     }
   }
 
-  if (buffer_size > 1) {
-    i--;
-    input_buffer[i] = '\0';
+  return kb_map[scancode];
+}
+
+void scanf(char* input_buffer, int buffer_size) {
+  if (buffer_size <= 1) return;
+
+  int i = 0;
+  idt_last_scancode = 0;
+
+  while (i < buffer_size - 1) {
+    while (idt_last_scancode == 0); // Waits for some key
+
+    unsigned char current_scancode = idt_last_scancode;
+    idt_last_scancode = 0;
+    bool is_key_released = current_scancode & 0x80;
+
+    if (is_key_released) continue;
+
+    char c = kb_map[current_scancode];
+    bool is_break_line = (c == '\n');
+    bool is_backspace = (c == '\b');
+
+    if (is_break_line) {
+      putchar('\n', TEXT_WHITE);
+      input_buffer[i] = '\n';
+      break;
+    } else if (is_backspace) {
+      if (i > 0) {
+        i--;
+        input_buffer[i] = '\0';
+
+        stdout--;
+        putchar('\0', TEXT_WHITE);
+        stdout--;
+      }
+    } else if (c != 0) {
+      input_buffer[i] = c;
+      i++;
+      putchar(c, TEXT_WHITE);
+    }
   }
+
+  input_buffer[i] = '\0';
 }

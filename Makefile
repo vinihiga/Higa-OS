@@ -19,7 +19,7 @@ link:
 
 compile:
 	i686-elf-gcc -m32 -O0 -ffreestanding -nostdlib \
-		-Wall -Wextra -Werror -I ./src/includes/ -c $(C_FILES)
+		-Wall -Wextra -Werror -Wno-unused -I ./src/includes/ -c $(C_FILES)
 	mv *.o build/
 
 assembly:

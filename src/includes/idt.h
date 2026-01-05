@@ -6,8 +6,8 @@
 #include "assembly.h"
 #include <stdint.h>
 
-extern volatile unsigned char last_scancode;           // This is defined in the loader.s (assembly file)
-extern volatile unsigned char is_special_key_pressed; // This is defined in the loader.s (assembly file)
+extern volatile unsigned char idt_last_scancode;           // This is defined in the loader.s (assembly file)
+extern volatile unsigned char idt_is_special_key_pressed;  // This is defined in the loader.s (assembly file)
 
 void idt_setup();
 
