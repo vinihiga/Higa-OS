@@ -9,6 +9,10 @@
 #include "idt.h"
 #include <stdint.h>
 
+// Setup related
+
+void terminal_setup();
+
 // Printing related
 
 void terminal_print_string(char* string, uint16_t foreground_color);

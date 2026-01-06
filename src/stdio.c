@@ -166,16 +166,14 @@ void scanf(char* input_buffer, int buffer_size) {
       putchar('\n', TEXT_WHITE);
       input_buffer[i] = '\n';
       break;
-    } else if (is_backspace) {
-      if (i > 0) {
-        i--;
-        input_buffer[i] = '\0';
+    } else if (is_backspace && i > 0) {
+      i--;
+      input_buffer[i] = '\0';
 
-        stdout--;
-        putchar('\0', TEXT_WHITE);
-        stdout--;
-      }
-    } else if (c != 0) {
+      stdout--;
+      putchar('\0', TEXT_WHITE);
+      stdout--;
+    } else if (c != 0 && !is_backspace) {
       input_buffer[i] = c;
       i++;
       putchar(c, TEXT_WHITE);
