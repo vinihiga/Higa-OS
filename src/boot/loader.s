@@ -55,17 +55,17 @@ irq_handle_keyboard:
     cmp al, 0xE0
     je .special_key_pressed
 
-    mov [idt_is_special_key_pressed], 0
-    mov [idt_last_scancode], al
+    mov byte [idt_is_special_key_pressed], 0
+    mov byte [idt_last_scancode], al
     mov al, 0x20
     out 0x20, al
     pop eax
     iretd
 
 .special_key_pressed:
-    mov [idt_is_special_key_pressed], 1
+    mov byte [idt_is_special_key_pressed], 1
     in al, 0x60
-    mov [idt_last_scancode], al
+    mov byte [idt_last_scancode], al
     mov al, 0x20
     out 0x20, al
     pop eax

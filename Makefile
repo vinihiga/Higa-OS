@@ -1,6 +1,14 @@
 C_FILES = $(wildcard src/*.c)
 OBJS = $(wildcard build/*.o)
 
+ifeq ($(shell uname -s), Linux)
+	COMPILER = gcc
+	LINKER = ld -m elf_i386
+else
+	COMPILER = i686-elf-gcc
+	LINKER = i686-elf-ld
+endif
+
 run: build
 	cp ./build/bin/kernel.elf ./iso/boot/ 
 	mkisofs -R -b boot/grub/stage2_eltorito \
@@ -10,16 +18,15 @@ run: build
 		-quiet \
 		-boot-info-table \
 		-o os.iso iso
-	bochs -f bochsrc.txt -q
+	qemu-system-i386 -cdrom os.iso
 
 build: assembly compile link
 
 link:
-	i686-elf-ld -T link.ld $(OBJS) -o ./build/bin/kernel.elf
+	$(LINKER) -T link.ld $(OBJS) -o ./build/bin/kernel.elf
 
 compile:
-	i686-elf-gcc -m32 -O0 -ffreestanding -nostdlib \
-		-Wall -Wextra -Werror -Wno-unused -I ./src/includes/ -c $(C_FILES)
+	$(COMPILER) -m32 -O0 -ffreestanding -nostdlib -Wall -Wextra -Werror -Wno-unused -I ./src/includes/ -c $(C_FILES)
 	mv *.o build/
 
 assembly:
