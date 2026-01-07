@@ -1,7 +1,7 @@
 #include "includes/stdio.h"
 
 uint16_t* stdout = (uint16_t*) STDIO_VGA_MEMORY_ADDR;
-uint16_t text_color = 0x0F; // Default to black background and white text
+uint16_t text_color = 0x0F; // Defaults to black background and white text
 
 unsigned char kb_map[128] = {
   0,27,'1','2','3','4','5','6','7','8','9','0','-','=','\b','\t', 'q','w','e','r','t','y','u','i','o','p','[',']','\n',0,'a','s',

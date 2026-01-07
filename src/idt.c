@@ -13,13 +13,14 @@ struct idt_descriptor {
     uint32_t base;        // Base address
 } __attribute__((packed));
 
-void set_gate(uint8_t index, uint32_t func_addr, uint16_t selector, uint8_t flags);
-void pic_remap();
 extern void irq_handle_keyboard(void);
 extern void irq_dummy(void);
 
 struct idt_entry idt_entries[IDT_MAX_SIZE];
 struct idt_descriptor idt_table;
+
+void set_gate(uint8_t index, uint32_t func_addr, uint16_t selector, uint8_t flags);
+void pic_remap();
 
 void idt_setup() {
   // We need to "reset" each gate
@@ -28,14 +29,7 @@ void idt_setup() {
   }
 
   // Configuring ports
-
-  // Configuring the keyboard
-  //
-  // Index               => 34th => 33 in memory
-  // irq_handle_keyboard => Assembly code that access at PIC 0x60
-  // selector            => GDT index, which is the 1st segment => 0000 1000b
-  // flags               => 0x80 + 0x0E => 0x80 equals to 1000 1110b (present, kernel access and 32 bits)
-  set_gate(33, (uint32_t) irq_handle_keyboard, 0x08, 0x8E);
+  set_gate(33, (uint32_t) irq_handle_keyboard, 0x08, 0x8E); // Keyboard IRQ - Index 33 - 1st segment
 
   // Finishing setting up the descriptor
   idt_table.limit = (sizeof(struct idt_entry) * IDT_MAX_SIZE) - 1;
