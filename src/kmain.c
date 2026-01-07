@@ -7,7 +7,7 @@
 void kernel_welcome() {
   terminal_setup();
   terminal_clear();
-  terminal_print_line("Welcome to Higa OS!", TEXT_WHITE);
+  terminal_print_line("Welcome to Higa OS!");
 
   while (true) {
     terminal_read_input();

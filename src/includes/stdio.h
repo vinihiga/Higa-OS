@@ -13,16 +13,11 @@
 #include "idt.h"
 
 extern uint16_t* stdout; // This is basically the VGA memory region address pointer. This is used for the terminal.
+extern uint16_t text_color; // This not exists in any another stdio.h file. It is just for compatibility with the current architecture.
 
-void putchar(char letter, uint16_t foreground_color); // TODO: Remove foreground_color param
-void printf(char* string, uint16_t foreground_color); // TODO: Remove foreground_color param, also must accept data type (ex. "%d", "%i", "%.2f")
+void putchar(char letter);
+void printf(char* string); // TODO: must accept data type (ex. "%d", "%i", "%.2f")
 char getchar();
 void scanf(char* input_buffer, int buffer_size); // TODO: Must allow to parse data to any data type (ex. "%d", "%i", "%s")
-
-enum Color {
-  TEXT_BLACK = 0x00,
-  TEXT_WHITE = 0x0F, // This is the default one
-  TEXT_GREEN = 0x02
-};
 
 #endif

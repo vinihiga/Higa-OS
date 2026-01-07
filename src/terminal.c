@@ -13,19 +13,21 @@ void terminal_setup() {
   outb(0x3D5, 0x0F);
 }
 
-void terminal_print_string(char* string, uint16_t foreground_color) {
-  printf(string, foreground_color);
+void terminal_print_string(char* string) {
+  printf(string);
   move_cursor(get_eol_for_cursor_col(), get_eol_for_cursor_row());
 }
 
-void terminal_print_line(char* string, uint16_t foreground_color) {
-  terminal_print_string(string, foreground_color);
-  putchar('\n', TEXT_WHITE);
+void terminal_print_line(char* string) {
+  terminal_print_string(string);
+  putchar('\n');
   move_cursor(0, get_eol_for_cursor_row() + 1);
 }
 
 void terminal_read_input() {
-  terminal_print_string("USER > ", TEXT_GREEN);
+  text_color = TEXT_GREEN;
+  terminal_print_string("USER > ");
+  text_color = TEXT_WHITE;
 
   char input_buffer[TERMINAL_INPUT_BUFFER_SIZE];
   int i = 0;
@@ -36,18 +38,19 @@ void terminal_read_input() {
     bool is_backspace = (new_char == '\b');
 
     if (is_break_line) {
+      putchar('\n');
       break;
     } else if (is_backspace && i > 0) {
       i--;
 
       stdout--;
-      putchar('\0', TEXT_WHITE);
+      putchar('\0');
       stdout--;
 
       input_buffer[i] = '\0';
       move_cursor(get_eol_for_cursor_col(), get_eol_for_cursor_row());
     } else if (!is_backspace) {
-      putchar(new_char, TEXT_WHITE);
+      putchar(new_char);
       input_buffer[i] = new_char;
       i++;
       move_cursor(get_eol_for_cursor_col(), get_eol_for_cursor_row());
@@ -58,9 +61,11 @@ void terminal_read_input() {
 }
 
 void terminal_clear() {
+  text_color = TEXT_WHITE;
+
   for (int j = 0; j < STDIO_TERMINAL_MAX_ROWS; j++) {
     for (int i = 0; i < STDIO_TERMINAL_MAX_COLS; i++) {
-        stdout[STDIO_TERMINAL_MAX_COLS * j + i] = (TEXT_WHITE << 8); 
+        stdout[STDIO_TERMINAL_MAX_COLS * j + i] = (text_color << 8); 
     }
   }
 
