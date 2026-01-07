@@ -5,6 +5,8 @@ int get_eol_for_cursor_row();
 int get_eol_for_cursor_col();
 
 void terminal_setup() {
+  terminal_clear();
+
   // Sets the cursor size of 16x16
   outb(0x3D4, 0x0A);
   outb(0x3D5, 0x00);

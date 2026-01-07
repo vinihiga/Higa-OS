@@ -2,11 +2,14 @@
 #include "includes/idt.h"       // Setups Interrupts
 
 // Non-mandatories. Just for user space.
-#include "includes/terminal.h"
+#include "includes/terminal.h"  // Terminal setup and I/O functions
 
-void kernel_welcome() {
+void setup_mandatories() {
+  idt_setup();
+}
+
+void setup_non_mandatories() {
   terminal_setup();
-  terminal_clear();
   terminal_print_line("Welcome to Higa OS!");
 
   while (true) {
@@ -15,6 +18,6 @@ void kernel_welcome() {
 }
 
 void kernel_main() {
-  idt_setup();
-  kernel_welcome();
+  setup_mandatories();
+  setup_non_mandatories();
 }
