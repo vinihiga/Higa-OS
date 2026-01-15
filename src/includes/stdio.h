@@ -1,19 +1,21 @@
 #ifndef STDIO_H
 #define STDIO_H
 
-#define STDIO_VGA_MEMORY_ADDR 0xB8000
-
 #define NULL 0
-
-#define STDIO_TERMINAL_MAX_COLS    80
-#define STDIO_TERMINAL_MAX_ROWS    25
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "idt.h"
+#include "video.h"
+#include "keyboard.h"
 
-extern uint16_t* stdout; // This is basically the VGA memory region address pointer. This is used for the terminal.
-extern uint16_t text_color; // This not exists in any another stdio.h file. It is just for compatibility with the current architecture.
+typedef struct FILE {
+  // Those properties are not the same as FILE from LIBC...
+  // This is an adaptation.
+  unsigned int x;
+  unsigned int y;
+} FILE;
+
+extern FILE* stdout;
 
 void putchar(char letter);
 void printf(char* string); // TODO: must accept data type (ex. "%d", "%i", "%.2f")

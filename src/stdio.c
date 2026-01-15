@@ -1,32 +1,57 @@
 #include "includes/stdio.h"
 
-uint16_t* stdout = (uint16_t*) STDIO_VGA_MEMORY_ADDR;
+FILE stdio_video_stream = { 0, 0 };
+FILE* stdout = &stdio_video_stream;
 uint16_t text_color = 0x0F; // Defaults to black background and white text
 
-unsigned char kb_map[128] = {
-  0,27,'1','2','3','4','5','6','7','8','9','0','-','=','\b','\t', 'q','w','e','r','t','y','u','i','o','p','[',']','\n',0,'a','s',
-  'd','f','g','h','j','k','l',';','\'','`',0,'\\','z','x','c','v','b','n','m',',','.','/',0,'*',0,' ',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-};
+void stdio_move_cursor(uint16_t x, uint16_t y);
 
 void putchar(char letter) {
-  if (letter == '\n') {
-    uintptr_t diff = (uintptr_t)stdout - (uintptr_t)STDIO_VGA_MEMORY_ADDR;
-    int cells = diff / sizeof(uint16_t); // Each cell must have 2 bytes. One for the ASCII character and another for color.
-    int actual_line = cells / STDIO_TERMINAL_MAX_COLS;
-    stdout = (uint16_t*)STDIO_VGA_MEMORY_ADDR + ((actual_line + 1) * STDIO_TERMINAL_MAX_COLS);
-    return;
-  }
+  switch (letter) {
+    // TODO: Fill trailing space to avoid unecessary printed characters when \n
+    case '\n':
+      if ((*stdout).y == VIDEO_MAX_ROWS - 1) {
+        stdout->x = 0;
+        stdout->y = 0;
+        stdio_move_cursor(0, 0);
+      } else {
+        stdout->x = 0;
+        stdout->y += 1;
+        stdio_move_cursor(0, (*stdout).y);
+      }
 
-  char to_print = letter;
-  bool is_ascii_code = ((uint16_t) letter >= 32 && (uint16_t) letter <= 255);
-  
-  if ((uint16_t) to_print != 0 && !is_ascii_code) {
-    to_print = '?';
-  }
+      video_draw('\0', stdout->x, stdout->y);
+      break;
+    default:
+      char to_print = letter;
+      bool is_ascii_code = ((uint16_t) letter >= 32 && (uint16_t) letter <= 255);
+      
+      if ((uint16_t) to_print != 0 && !is_ascii_code) {
+        to_print = '?';
+      }
 
-  *stdout = ((uint16_t) text_color << 8) | to_print;
-  stdout += 1;
+      if ((*stdout).y == VIDEO_MAX_ROWS - 1 && (*stdout).x == VIDEO_MAX_COLS - 1) {
+        stdout->x = 0;
+        stdout->y = 0;
+        stdio_move_cursor(1, 0);
+      } else if ((*stdout).x== VIDEO_MAX_COLS - 1) {
+        stdout->x = 0;
+        stdout->y += 1;
+        stdio_move_cursor(0, (*stdout).y);
+      } else {
+        stdout->x += 1;
+
+        if ((*stdout).x + 1 >= VIDEO_MAX_COLS && (*stdout).y < VIDEO_MAX_ROWS - 1) {
+          stdio_move_cursor(0, (*stdout).y + 1);
+        } else if ((*stdout).x + 1 >= VIDEO_MAX_COLS) {
+          stdio_move_cursor(0, 0);
+        } else {
+          stdio_move_cursor((*stdout).x + 1, (*stdout).y);
+        }
+      }
+
+      video_draw(to_print, stdout->x, stdout->y);
+  }
 }
 
 void printf(char* string) {
@@ -39,22 +64,7 @@ void printf(char* string) {
 }
 
 char getchar() {
-  unsigned char scancode;
-
-  while (true) {
-    idt_last_scancode = 0;
-    while (idt_last_scancode == 0);
-
-    scancode = idt_last_scancode;
-    idt_last_scancode = 0;
-    bool is_key_released = scancode & 0x80;
-
-    if (!is_key_released) {
-      break;
-    }
-  }
-
-  return kb_map[scancode];
+  return kb_get_scan_code();
 }
 
 void scanf(char* input_buffer, int buffer_size) {
@@ -64,15 +74,8 @@ void scanf(char* input_buffer, int buffer_size) {
   idt_last_scancode = 0;
 
   while (i < buffer_size - 1) {
-    while (idt_last_scancode == 0); // Waits for some key
+    char c = getchar();
 
-    unsigned char current_scancode = idt_last_scancode;
-    idt_last_scancode = 0;
-    bool is_key_released = current_scancode & 0x80;
-
-    if (is_key_released) continue;
-
-    char c = kb_map[current_scancode];
     bool is_break_line = (c == '\n');
     bool is_backspace = (c == '\b');
 
@@ -85,8 +88,14 @@ void scanf(char* input_buffer, int buffer_size) {
       input_buffer[i] = '\0';
 
       stdout--;
-      putchar('\0');
+      putchar(' ');
       stdout--;
+
+      // By default the putchar() updates the mouse position.
+      // We need to revert the position when we have the \n.
+      int x = video_get_eol_col_position();
+      int y = video_get_eol_row_position();
+      stdio_move_cursor(x--, y);
     } else if (c != 0 && !is_backspace) {
       input_buffer[i] = c;
       i++;
@@ -95,4 +104,27 @@ void scanf(char* input_buffer, int buffer_size) {
   }
 
   input_buffer[i] = '\0';
+}
+
+// TODO: Move this out. Cursor must handle by itself.
+void stdio_move_cursor(uint16_t x, uint16_t y) {
+  int new_x = x;
+  int new_y = y;
+
+  if (new_x >= VIDEO_MAX_COLS) {
+    new_x = 0;
+  }
+
+  if (new_y >= VIDEO_MAX_ROWS) {
+    new_y = 0;
+  }
+
+  uint16_t cells = new_y * VIDEO_MAX_COLS + new_x;
+
+  // Calls the registers of the position for the cursor
+  outb(0x3D4, 0x0E);
+  outb(0x3D5, (cells >> 8) & 0xFF);
+
+  outb(0x3D4, 0x0F);
+  outb(0x3D5, cells & 0xFF);
 }

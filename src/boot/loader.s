@@ -16,8 +16,8 @@ section .data
     global idt_last_scancode
     idt_last_scancode db 0
 
-    global idt_is_special_key_pressed
-    idt_is_special_key_pressed db 0
+    global idt_is_left_shift_pressed
+    idt_is_left_shift_pressed db 0
 
 section .bss
     align 4
@@ -54,20 +54,26 @@ section .text                       ; start of the text (code) section
 
         ; Checks if we are going to have 2 bytes of data for extended keycode,
         ; otherwise we won't jump and we are going to show a regular input with just 1 byte of info.
-        cmp al, 0xE0
-        je irq_handle_keyboard.special_key_pressed
+        cmp al, 0x2A
+        je .is_special_key_pressed
+        cmp al, 0xAA
+        je .is_special_key_released
 
-        mov byte [idt_is_special_key_pressed], 0
-        mov byte [idt_last_scancode], al
-        mov al, 0x20
-        out 0x20, al
-        pop eax
-        iretd
+        jmp irq_handle_keyboard.get_scan_code
 
-    irq_handle_keyboard.special_key_pressed:
-        mov byte [idt_is_special_key_pressed], 1
-        in al, 0x60
+    .is_special_key_pressed:
+        mov byte [idt_is_left_shift_pressed], 1
+        jmp .finish
+
+    .is_special_key_released:
+        mov byte [idt_is_left_shift_pressed], 0
+        jmp .finish
+    
+    .get_scan_code:
         mov byte [idt_last_scancode], al
+        jmp .finish
+    
+    .finish:
         mov al, 0x20
         out 0x20, al
         pop eax
