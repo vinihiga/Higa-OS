@@ -8,16 +8,19 @@ void stdio_move_cursor(uint16_t x, uint16_t y);
 
 void putchar(char letter) {
   switch (letter) {
-    // TODO: Fill trailing space to avoid unecessary printed characters when \n
     case '\n':
       if ((*stdout).y == VIDEO_MAX_ROWS - 1) {
         stdout->x = 0;
-        stdout->y = 0;
-        stdio_move_cursor(0, 0);
+        stdio_move_cursor(0, (*stdout).y);
+        video_scroll_down();
       } else {
         stdout->x = 0;
         stdout->y += 1;
         stdio_move_cursor(0, (*stdout).y);
+      }
+
+      for (int i = stdout->x + 1; i < VIDEO_MAX_COLS; i++) {
+        video_draw(' ', i, stdout->y);
       }
 
       video_draw('\0', stdout->x, stdout->y);
@@ -31,26 +34,20 @@ void putchar(char letter) {
       }
 
       if ((*stdout).y == VIDEO_MAX_ROWS - 1 && (*stdout).x == VIDEO_MAX_COLS - 1) {
+        video_draw(to_print, stdout->x, stdout->y);
+        video_scroll_down();
         stdout->x = 0;
-        stdout->y = 0;
-        stdio_move_cursor(1, 0);
-      } else if ((*stdout).x== VIDEO_MAX_COLS - 1) {
+        stdio_move_cursor(stdout->x, VIDEO_MAX_ROWS - 1);
+      } else if ((*stdout).x == VIDEO_MAX_COLS - 1) {
+        video_draw(to_print, stdout->x, stdout->y);
         stdout->x = 0;
         stdout->y += 1;
-        stdio_move_cursor(0, (*stdout).y);
+        stdio_move_cursor(stdout->x, stdout->y);
       } else {
+        video_draw(to_print, stdout->x, stdout->y);
         stdout->x += 1;
-
-        if ((*stdout).x + 1 >= VIDEO_MAX_COLS && (*stdout).y < VIDEO_MAX_ROWS - 1) {
-          stdio_move_cursor(0, (*stdout).y + 1);
-        } else if ((*stdout).x + 1 >= VIDEO_MAX_COLS) {
-          stdio_move_cursor(0, 0);
-        } else {
-          stdio_move_cursor((*stdout).x + 1, (*stdout).y);
-        }
+        stdio_move_cursor(stdout->x, stdout->y);
       }
-
-      video_draw(to_print, stdout->x, stdout->y);
   }
 }
 
@@ -87,15 +84,15 @@ void scanf(char* input_buffer, int buffer_size) {
       i--;
       input_buffer[i] = '\0';
 
-      stdout--;
-      putchar(' ');
-      stdout--;
+      if (stdout->x == 0) {
+        stdout->x = VIDEO_MAX_COLS - 1;
+        stdout->y -= 1;
+      } else {
+        stdout->x -= 1;
+      }
 
-      // By default the putchar() updates the mouse position.
-      // We need to revert the position when we have the \n.
-      int x = video_get_eol_col_position();
-      int y = video_get_eol_row_position();
-      stdio_move_cursor(x--, y);
+      video_draw(' ', stdout->x, stdout->y);
+      stdio_move_cursor(stdout->x, stdout->y);
     } else if (c != 0 && !is_backspace) {
       input_buffer[i] = c;
       i++;

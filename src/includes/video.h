@@ -10,10 +10,8 @@
 
 extern uint16_t video_text_color;
 
-int video_get_eol_row_position();
-int video_get_eol_col_position();
-
 void video_draw(char c, unsigned  x, unsigned int y);
 void video_clear();
+void video_scroll_down();
 
 #endif
