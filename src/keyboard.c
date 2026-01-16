@@ -16,13 +16,13 @@ unsigned char kb_map_shifted[128] = {
 char kb_get_scan_code() {
   unsigned char scancode;
 
-  while (true) {
+  while (1) {
     idt_last_scancode = 0;
     while (idt_last_scancode == 0);
 
     scancode = idt_last_scancode;
     idt_last_scancode = 0;
-    bool is_key_released = scancode & 0x80;
+    int is_key_released = scancode & 0x80;
 
     if (!is_key_released) {
       break;

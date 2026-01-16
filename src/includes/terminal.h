@@ -15,21 +15,6 @@ enum TextColor {
   TEXT_GREEN = 0x02
 };
 
-// Setup related
-
 void terminal_setup();
-
-// Printing related
-
-void terminal_print_string(char* string);
-void terminal_print_line(char* string);
-
-// Reading related
-
-void terminal_read_input(); // TODO: it must return a char*
-
-// Others
-
-void terminal_clear();
 
 #endif

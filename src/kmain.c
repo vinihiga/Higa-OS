@@ -10,12 +10,6 @@ void setup_mandatories() {
 
 void setup_non_mandatories() {
   terminal_setup();
-  terminal_print_line("Welcome to Higa OS!");
-  terminal_print_line("For more informations type `help`.");
-
-  while (true) {
-    terminal_read_input();
-  }
 }
 
 void kernel_main() {
