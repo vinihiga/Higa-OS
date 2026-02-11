@@ -1,6 +1,6 @@
 #include "./includes/video.h"
 
-uint16_t* buffer = (uint16_t*) VIDEO_MEMORY_ADDR;
+static uint16_t* buffer = (uint16_t*) VIDEO_MEMORY_ADDR;
 uint16_t video_text_color = 0x0F; // Defaults to white text and black background
 
 void video_draw(char c, unsigned int x, unsigned int y) {

@@ -1,12 +1,12 @@
 #include "includes/terminal.h"
 
-char input_buffer[TERMINAL_INPUT_BUFFER_SIZE]; // TODO: Remove input buffer from future
+static char input_buffer[TERMINAL_INPUT_BUFFER_SIZE]; // TODO: Remove input buffer from future
 
-void terminal_print_string(char* string);
-void terminal_print_line(char* string);
-void terminal_read_input(); // TODO: Return memory allocated char*
-void terminal_handle_command(char* string);
-void terminal_clear();
+static void terminal_print_string(char* string);
+static void terminal_print_line(char* string);
+static void terminal_read_input(); // TODO: Return memory allocated char*
+static void terminal_handle_command(char* string);
+static void terminal_clear();
 
 void terminal_setup() {
   terminal_clear();
@@ -27,16 +27,16 @@ void terminal_setup() {
   }
 }
 
-void terminal_print_string(char* string) {
+static void terminal_print_string(char* string) {
   printf(string);
 }
 
-void terminal_print_line(char* string) {
+static void terminal_print_line(char* string) {
   printf(string);
   putchar('\n');
 }
 
-void terminal_read_input() {
+static void terminal_read_input() {
   video_text_color = TEXT_GREEN;
   terminal_print_string("USER > ");
   video_text_color = TEXT_WHITE;
@@ -44,7 +44,7 @@ void terminal_read_input() {
   scanf(input_buffer, TERMINAL_INPUT_BUFFER_SIZE);
 }
 
-void terminal_handle_command(char* string) {
+static void terminal_handle_command(char* string) {
   // TODO: Add a state machine to handle each command.
   // TODO: Add somehow to register new commands (a.k.a run programs)
 
@@ -55,7 +55,7 @@ void terminal_handle_command(char* string) {
   }
 }
 
-void terminal_clear() {
+static void terminal_clear() {
   video_clear();
   stdout->x = 0;
   stdout->y = 0;

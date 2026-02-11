@@ -16,11 +16,11 @@ struct idt_descriptor {
 extern void irq_handle_keyboard(void);
 extern void irq_dummy(void);
 
-struct idt_entry idt_entries[IDT_MAX_SIZE];
-struct idt_descriptor idt_table;
+static struct idt_entry idt_entries[IDT_MAX_SIZE];
+static struct idt_descriptor idt_table;
 
-void set_gate(uint8_t index, uint32_t func_addr, uint16_t selector, uint8_t flags);
-void pic_remap();
+static void set_gate(uint8_t index, uint32_t func_addr, uint16_t selector, uint8_t flags);
+static void pic_remap();
 
 void idt_setup() {
   // We need to "reset" each gate
@@ -52,7 +52,7 @@ void set_gate(uint8_t index, uint32_t func_addr, uint16_t selector, uint8_t flag
   idt_entries[index].flags = flags;
 }
 
-void pic_remap() {
+static void pic_remap() {
   // Sends to PIC Master and Slave we will send 3 commands
   outb(0x20, 0x11); outb(0xA0, 0x11);
   // Offset: Master=32 (0x20), Slave=40 (0x28)

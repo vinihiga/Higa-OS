@@ -4,11 +4,11 @@
 // Non-mandatories. Just for user space.
 #include "includes/terminal.h"  // Terminal setup and I/O functions
 
-void setup_mandatories() {
+static void setup_mandatories() {
   idt_setup();
 }
 
-void setup_non_mandatories() {
+static void setup_non_mandatories() {
   terminal_setup();
 }
 
