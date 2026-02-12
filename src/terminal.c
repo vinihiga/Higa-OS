@@ -1,10 +1,8 @@
 #include "includes/terminal.h"
 
-static char input_buffer[TERMINAL_INPUT_BUFFER_SIZE]; // TODO: Remove input buffer from future
-
 static void terminal_print_string(char* string);
 static void terminal_print_line(char* string);
-static void terminal_read_input(); // TODO: Return memory allocated char*
+static char* terminal_read_input(); // TODO: Return memory allocated char*
 static void terminal_handle_command(char* string);
 static void terminal_clear();
 
@@ -27,26 +25,29 @@ void terminal_setup() {
   terminal_print_string("For more informations type `help`.\n\n");
 
   while (true) {
-    terminal_read_input();
-    terminal_handle_command(input_buffer);
+    char* content = terminal_read_input();
+    terminal_handle_command(content);
   }
 }
 
 static void terminal_print_string(char* string) {
-  printf(string);
+  printf("%s", string);
 }
 
 static void terminal_print_line(char* string) {
-  printf(string);
+  printf("%s", string);
   putchar('\n');
 }
 
-static void terminal_read_input() {
+static char* terminal_read_input() {
   video_text_color = TEXT_GREEN;
   terminal_print_string("USER > ");
   video_text_color = TEXT_WHITE;
 
-  scanf(input_buffer, TERMINAL_INPUT_BUFFER_SIZE);
+  char* result = malloc(TERMINAL_INPUT_BUFFER_SIZE * sizeof(char));
+  scanf(result, TERMINAL_INPUT_BUFFER_SIZE);
+
+  return result;
 }
 
 static void terminal_handle_command(char* string) {

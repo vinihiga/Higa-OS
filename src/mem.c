@@ -34,3 +34,8 @@ void* malloc(unsigned int size) {
 
   return (void *)(new_block + 1);
 }
+
+void free(void *ptr) {
+  struct mem_block* head = (struct mem_block*)ptr;
+  head->is_free = 1;
+}

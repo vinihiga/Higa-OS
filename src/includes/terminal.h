@@ -7,6 +7,7 @@
 #include "strings.h"
 #include "assembly.h"
 #include "video.h"
+#include "mem.h"
 #include <stdint.h>
 
 enum TextColor {

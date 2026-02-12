@@ -4,7 +4,8 @@ FILE stdio_video_stream = { 0, 0 };
 FILE* stdout = &stdio_video_stream;
 uint16_t text_color = 0x0F; // Defaults to black background and white text
 
-void stdio_move_cursor(uint16_t x, uint16_t y);
+static void stdio_print_string(char* content);
+static void stdio_move_cursor(uint16_t x, uint16_t y);
 
 void putchar(char letter) {
   switch (letter) {
@@ -51,8 +52,30 @@ void putchar(char letter) {
   }
 }
 
-void printf(char* string) {
+void printf(char* string, ...) {
   char* ptr = string;
+  char** arg_ptr = (char**)(&string + 1); // TODO: Should be cool to identify if we aren't accessing unauthorized memory region
+
+  while (*ptr != '\0') {
+    if (*ptr == '%' && *(ptr + 1) != '\0') {
+      ptr++;
+
+      if (*ptr == 's') {
+        stdio_print_string(*arg_ptr);
+        arg_ptr++;
+      } else {
+        putchar('%');
+        putchar(*ptr);
+      }
+    } else {
+      putchar(*ptr);
+    }
+    ptr++;
+  }
+}
+
+static void stdio_print_string(char* content) {
+  char* ptr = content;
 
   while (*ptr != '\0') {
     putchar(*ptr);
@@ -104,7 +127,7 @@ void scanf(char* input_buffer, int buffer_size) {
 }
 
 // TODO: Move this out. Cursor must handle by itself.
-void stdio_move_cursor(uint16_t x, uint16_t y) {
+static void stdio_move_cursor(uint16_t x, uint16_t y) {
   int new_x = x;
   int new_y = y;
 

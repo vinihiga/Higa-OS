@@ -9,5 +9,6 @@ struct mem_block {
 
 void mem_setup();
 void* malloc(unsigned int size);
+void free(void *ptr);
 
 #endif

@@ -5,6 +5,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "strings.h"
 #include "video.h"
 #include "keyboard.h"
 
@@ -18,7 +19,7 @@ typedef struct FILE {
 extern FILE* stdout;
 
 void putchar(char letter);
-void printf(char* string); // TODO: must accept data type (ex. "%d", "%i", "%.2f")
+void printf(char* string, ...);
 char getchar();
 void scanf(char* input_buffer, int buffer_size); // TODO: Must allow to parse data to any data type (ex. "%d", "%i", "%s")
 
