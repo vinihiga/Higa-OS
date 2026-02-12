@@ -15,6 +15,10 @@ enum TextColor {
   TEXT_GREEN = 0x02
 };
 
+enum BackgroundColor {
+  BG_BLUE = 0x1F
+};
+
 void terminal_setup();
 
 #endif

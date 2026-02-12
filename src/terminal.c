@@ -18,8 +18,13 @@ void terminal_setup() {
   outb(0x3D4, 0x0B);
   outb(0x3D5, 0x0F);
 
-  terminal_print_line("Welcome to Higa OS!");
-  terminal_print_line("For more informations type `help`.");
+  terminal_print_string("Welcome to ");
+  video_text_color = BG_BLUE;
+  terminal_print_string("Higa OS");
+  video_text_color = TEXT_WHITE;
+  terminal_print_string("!\n");
+
+  terminal_print_string("For more informations type `help`.\n\n");
 
   while (true) {
     terminal_read_input();
