@@ -1,4 +1,4 @@
-#include "includes/mem.h"
+#include "../includes/mem.h"
 
 extern unsigned int heap_start;
 

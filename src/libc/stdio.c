@@ -1,4 +1,4 @@
-#include "includes/stdio.h"
+#include "../includes/stdio.h"
 
 FILE stdio_video_stream = { 0, 0 };
 FILE* stdout = &stdio_video_stream;

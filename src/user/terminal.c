@@ -1,4 +1,4 @@
-#include "includes/terminal.h"
+#include "../includes/terminal.h"
 
 static void terminal_print_string(char* string);
 static void terminal_print_line(char* string);

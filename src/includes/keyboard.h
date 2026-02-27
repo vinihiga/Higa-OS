@@ -1,7 +1,7 @@
 #ifndef KEYBOARD_H
 #define KEYBOARD_H
 
-#include "../includes/idt.h"
+#include "idt.h"
 
 char kb_get_scan_code();
 

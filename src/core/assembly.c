@@ -1,4 +1,4 @@
-#include "includes/assembly.h"
+#include "../includes/assembly.h"
 
 void outb(unsigned short port, unsigned char val) {
   asm volatile("outb %0, %1" : : "a"(val), "dN"(port));

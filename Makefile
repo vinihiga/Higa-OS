@@ -1,4 +1,4 @@
-C_FILES = $(wildcard src/*.c)
+C_FILES = $(wildcard src/libc/*.c src/core/*.c src/user/*.c src/*.c)
 OBJS = $(wildcard build/*.o)
 
 ifeq ($(shell uname -s), Linux)
@@ -33,10 +33,10 @@ assembly:
 	nasm -f elf32 ./src/boot/loader.s -o ./build/loader.o
 
 setup: clean
-	mkdir build
-	mkdir build/bin
 
 clean:
-	rm os.iso
-	rm -rf build/
-	rm *.o
+	-rm os.iso
+	-rm -rf build/
+	-rm *.o
+	mkdir build
+	mkdir build/bin

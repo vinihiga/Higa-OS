@@ -1,4 +1,4 @@
-#include "./includes/video.h"
+#include "../includes/video.h"
 
 static uint16_t* buffer = (uint16_t*) VIDEO_MEMORY_ADDR;
 uint16_t video_text_color = 0x0F; // Defaults to white text and black background
